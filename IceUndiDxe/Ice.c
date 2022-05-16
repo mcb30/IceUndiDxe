@@ -1811,7 +1811,7 @@ IceReadMacAddress (
   IN DRIVER_DATA *AdapterInfo
   )
 {
-  enum ice_status_code IceStatus;
+  enum ice_status      IceStatus;
   struct ice_hw       *Hw = &AdapterInfo->Hw;
   struct ice_aqc_manage_mac_read_resp MacReadResponse[2];
   UINT16 ResponseLength = sizeof (MacReadResponse);
@@ -3579,7 +3579,7 @@ ClearAdminReceiveQueue (
   IN DRIVER_DATA *AdapterInfo
   )
 {
-  enum ice_status_code       IceStatus = ICE_SUCCESS;
+  enum ice_status            IceStatus = ICE_SUCCESS;
   struct ice_hw             *Hw;
   struct ice_rq_event_info   EventInfo;
   UINT16                     Pending;
@@ -3630,7 +3630,7 @@ AwaitReceiveQueueEvent (
   IN UINT32               Timeout
   )
 {
-  enum ice_status_code       IceStatus = ICE_SUCCESS;
+  enum ice_status            IceStatus = ICE_SUCCESS;
   struct ice_hw             *Hw;
   struct ice_rq_event_info   EventInfo;
   UINT16                     Pending;
