@@ -76,6 +76,9 @@
 #  SerialPortLib|PcAtChipsetPkg/Library/SerialIoLib/SerialIoLib.inf
 #  IoLib|MdePkg/Library/BaseIoLibIntrinsic/BaseIoLibIntrinsic.inf
 
+[BuildOptions]
+  GCC:*_*_*_CC_FLAGS  = -Wno-unused-function -Wno-unused-value -Wno-unused-variable -Wno-unused-but-set-variable -Wno-pointer-sign -Wno-incompatible-pointer-types
+
 ################################################################################
 #
 # Pcd Section - list of all EDK II PCD Entries defined by this Platform
