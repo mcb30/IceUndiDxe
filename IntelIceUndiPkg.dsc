@@ -42,6 +42,8 @@
 [SkuIds]
   0|DEFAULT              # The entry: 0|DEFAULT is reserved and always required.
 
+!include MdePkg/MdeLibs.dsc.inc
+
 [LibraryClasses]
   StdLibC|IntelUndiPkg/LibC/LibC.inf
   BaseLib|MdePkg/Library/BaseLib/BaseLib.inf
