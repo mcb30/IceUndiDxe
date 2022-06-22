@@ -317,12 +317,12 @@ ice_sched_add_node(struct ice_port_info *pi, u8 layer,
 	/* query the current node information from FW before adding it
 	 * to the SW DB
 	 */
-	if ( 1 ) {
+	if ( 0 ) {
 	status = ice_sched_query_elem(hw, LE32_TO_CPU(info->node_teid), &elem);
 	if (status)
 		return status;
 	} else {
-		memset ( &elem, 0, sizeof ( elem ) );
+		elem = *info;
 	}
 	node = (struct ice_sched_node *)ice_malloc(hw, sizeof(*node));
 	if (!node)
@@ -1815,8 +1815,10 @@ enum ice_status ice_sched_init_port(struct ice_port_info *pi)
 				hw->sw_entry_point_layer = j;
 
 			status = ice_sched_add_node(pi, j, &buf[i].generic[j]);
-			if (status)
+			if (status) {
+				DEBUGPRINT(CRITICAL, ("*** add_node failed\n" ));
 				goto err_init_port;
+			}
 		}
 	}
 	}
