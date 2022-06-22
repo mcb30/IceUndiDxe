@@ -317,9 +317,13 @@ ice_sched_add_node(struct ice_port_info *pi, u8 layer,
 	/* query the current node information from FW before adding it
 	 * to the SW DB
 	 */
+	if ( 1 ) {
 	status = ice_sched_query_elem(hw, LE32_TO_CPU(info->node_teid), &elem);
 	if (status)
 		return status;
+	} else {
+		memset ( &elem, 0, sizeof ( elem ) );
+	}
 	node = (struct ice_sched_node *)ice_malloc(hw, sizeof(*node));
 	if (!node)
 		return ICE_ERR_NO_MEMORY;

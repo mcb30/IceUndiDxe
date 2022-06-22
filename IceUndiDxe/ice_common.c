@@ -1632,11 +1632,13 @@ enum ice_status ice_init_hw(struct ice_hw *hw)
 
 	DEBUGPRINT(CRITICAL, ("***\n"));
 
+	if ( 0 ) {
 #ifndef LEGACY_PREBOOT_SUPPORT
 	status = ice_init_nvm(hw);
 	if (status)
 		goto err_unroll_cqinit;
 #endif /* !LEGACY_PREBOOT_SUPPORT */
+	}
 
 	DEBUGPRINT(CRITICAL, ("***\n"));
 
@@ -2760,8 +2762,8 @@ ice_aq_send_cmd(struct ice_hw *hw, struct ice_aq_desc *desc, void *buf,
 	int crap = (desc->opcode == 0x0008 ||
 		    desc->opcode == 0x0009 ||
 		    desc->opcode == 0x0701);
-	
-	if (!crap) {
+
+	if (1 || !crap) {
 		DEBUGPRINT(CRITICAL, ("*** AQ cmd %04x\n", LE16_TO_CPU(desc->opcode)));
 	}
 #if !defined(NO_FLEXP_SUPPORT) && defined(LINUX_SUPPORT)
@@ -6999,18 +7001,18 @@ ice_get_lan_q_ctx(struct ice_hw *hw, u16 vsi_handle, u8 tc, u16 q_handle)
 	struct ice_vsi_ctx *vsi;
 	struct ice_q_ctx *q_ctx;
 
-	DEBUGPRINT(CRITICAL, ("*** vsi_handle=0x%x\n", vsi_handle));
+	//DEBUGPRINT(CRITICAL, ("*** vsi_handle=0x%x\n", vsi_handle));
 
 	vsi = ice_get_vsi_ctx(hw, vsi_handle);
 	if (!vsi)
 		return NULL;
-	DEBUGPRINT(CRITICAL, ("*** num_lan_q_entries[%d]=%d\n", vsi->num_lan_q_entries[tc], tc));
+	//DEBUGPRINT(CRITICAL, ("*** num_lan_q_entries[%d]=%d\n", vsi->num_lan_q_entries[tc], tc));
 	if (q_handle >= vsi->num_lan_q_entries[tc])
 		return NULL;
-	DEBUGPRINT(CRITICAL, ("***\n"));
+	//DEBUGPRINT(CRITICAL, ("***\n"));
 	if (!vsi->lan_q_ctx[tc])
 		return NULL;
-	DEBUGPRINT(CRITICAL, ("***\n"));
+	//DEBUGPRINT(CRITICAL, ("***\n"));
 	q_ctx = vsi->lan_q_ctx[tc];
 	return &q_ctx[q_handle];
 }
@@ -7039,7 +7041,7 @@ ice_ena_vsi_txq(struct ice_port_info *pi, u16 vsi_handle, u8 tc, u16 q_handle,
 	enum ice_status status;
 	struct ice_hw *hw;
 
-	DEBUGPRINT(CRITICAL, ("***\n"));
+	//DEBUGPRINT(CRITICAL, ("***\n"));
 
 	if (!pi || pi->port_state != ICE_SCHED_PORT_STATE_READY)
 		return ICE_ERR_CFG;
@@ -7054,7 +7056,7 @@ ice_ena_vsi_txq(struct ice_port_info *pi, u16 vsi_handle, u8 tc, u16 q_handle,
 
 	ice_acquire_lock(&pi->sched_lock);
 
-	DEBUGPRINT(CRITICAL, ("***\n"));
+	//DEBUGPRINT(CRITICAL, ("***\n"));
 
 
 	struct ice_q_ctx q_ctx_fuckit;
@@ -7064,11 +7066,11 @@ ice_ena_vsi_txq(struct ice_port_info *pi, u16 vsi_handle, u8 tc, u16 q_handle,
 			  q_handle);
 		//status = ICE_ERR_PARAM;
 		//goto ena_txq_exit;
-		DEBUGPRINT(CRITICAL, ("*** no q_ctx, fucking it\n"));
+		//DEBUGPRINT(CRITICAL, ("*** no q_ctx, fucking it\n"));
 		q_ctx = &q_ctx_fuckit;
 	}
 
-	DEBUGPRINT(CRITICAL, ("***\n"));
+	//DEBUGPRINT(CRITICAL, ("***\n"));
 
 	/* find a parent node */
 	parent = ice_sched_get_free_qparent(pi, vsi_handle, tc,
@@ -7081,7 +7083,7 @@ ice_ena_vsi_txq(struct ice_port_info *pi, u16 vsi_handle, u8 tc, u16 q_handle,
 		goto ena_txq_exit;
 	}
 
-	DEBUGPRINT(CRITICAL, ("***\n"));
+	//DEBUGPRINT(CRITICAL, ("***\n"));
 
 
 	buf->parent_teid = parent->info.node_teid;
@@ -8342,7 +8344,7 @@ ice_sched_query_elem(struct ice_hw *hw, u32 node_teid,
 	u16 buf_size, num_elem_ret = 0;
 	enum ice_status status;
 
-	DEBUGPRINT(CRITICAL, ("***\n"));
+	//DEBUGPRINT(CRITICAL, ("***\n"));
 	buf_size = sizeof(*buf);
 	ice_memset(buf, 0, buf_size, ICE_NONDMA_MEM);
 	buf->node_teid = CPU_TO_LE32(node_teid);

@@ -3494,6 +3494,9 @@ ice_aq_sw_rules(struct ice_hw *hw, void *rule_list, u16 rule_list_sz,
 	struct ice_aq_desc desc;
 	enum ice_status status;
 
+	//
+	return 0;
+
 	ice_debug(hw, ICE_DBG_TRACE, "%s\n", __func__);
 
 	if (opc != ice_aqc_opc_add_sw_rules &&

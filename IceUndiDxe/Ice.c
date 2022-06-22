@@ -1552,17 +1552,17 @@ IceSetupPFSwitch (
 				   struct ice_sched_node *parent, u8 layer);
 
   
-  DEBUGPRINT(CRITICAL, ("*** have vsi_num 0x%x\n", Hw->fw_vsi_num));
+  //DEBUGPRINT(CRITICAL, ("*** have vsi_num 0x%x\n", Hw->fw_vsi_num));
   vsil = ice_sched_get_vsi_layer(Hw);
-  DEBUGPRINT(CRITICAL, ("*** have vsil %d\n", vsil));
+  //DEBUGPRINT(CRITICAL, ("*** have vsil %d\n", vsil));
   tc_node = ice_sched_get_tc_node(Hw->port_info, 0);
-  DEBUGPRINT(CRITICAL, ("*** have TC0 node %p\n", tc_node));
+  //DEBUGPRINT(CRITICAL, ("*** have TC0 node %p\n", tc_node));
   first_node = ice_sched_get_first_node(Hw->port_info, tc_node, vsil);
-  DEBUGPRINT(CRITICAL, ("*** have TC0 VSI layer first node %p\n", first_node));
+  //DEBUGPRINT(CRITICAL, ("*** have TC0 VSI layer first node %p\n", first_node));
   vsi_node = ice_sched_get_vsi_node(Hw->port_info, tc_node, Hw->fw_vsi_num);
-  DEBUGPRINT(CRITICAL, ("*** have VSI node %p\n", vsi_node));
+  //DEBUGPRINT(CRITICAL, ("*** have VSI node %p\n", vsi_node));
 
-  DEBUGPRINT(CRITICAL, ("***\n"));
+  //DEBUGPRINT(CRITICAL, ("***\n"));
   if ( 0 ) {
   IceStatus = ice_aq_update_vsi (Hw, &AdapterInfo->Vsi.VsiCtx, NULL);
   if (IceStatus != ICE_SUCCESS) {

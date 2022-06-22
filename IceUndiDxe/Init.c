@@ -587,6 +587,7 @@ Returns:
     }
 
     // Install Driver Health Protocol for driver
+    if ( 0 ) {
     Status = gBS->InstallMultipleProtocolInterfaces (
                     &ImageHandle,
                     &gEfiDriverHealthProtocolGuid,
@@ -596,6 +597,7 @@ Returns:
     if (EFI_ERROR (Status)) {
       DEBUGPRINT (CRITICAL, ("Installing UEFI 2.2 Driver Health Protocol - %r\n", Status));
       return Status;
+    }
     }
 
     Status = gBS->CreateEvent (
@@ -1490,10 +1492,12 @@ InitChildProtocols (
   }
 
     // Initialize HII Protocols
+  if ( 0 ) {
     Status = HiiInit (UndiPrivateData);
     if (EFI_ERROR (Status)) {
       DEBUGPRINT (CRITICAL, ("HiiInit failed with %r\n", Status));
     }
+  }
   return EFI_SUCCESS;
 }
 
