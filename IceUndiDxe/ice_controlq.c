@@ -27,6 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ***************************************************************************/
 
+#include "Ice.h"
 #include "ice_common.h"
 
 
@@ -1662,6 +1663,7 @@ ice_sq_send_cmd_nolock(struct ice_hw *hw, struct ice_ctl_q_info *cq,
 		}
 		retval = LE16_TO_CPU(desc->retval);
 		if (retval) {
+			DEBUGPRINT(CRITICAL, ("*** AQ cmd %04x failed with error 0x%x\n", LE16_TO_CPU(desc->opcode), retval));
 			ice_debug(hw, ICE_DBG_AQ_MSG, "Control Send Queue command 0x%04X completed with error 0x%X\n",
 				  LE16_TO_CPU(desc->opcode),
 				  retval);

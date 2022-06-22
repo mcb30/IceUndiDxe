@@ -76,6 +76,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define OPENSRC_DBG_LVL (INIT | DIAG | CRITICAL | HII | HEALTH | ADAPTERINFO | DMA | WOL)
 
 
+#undef DBG_LVL
+#define DBG_LVL OPENSRC_DBG_LVL
+#define DEBUGWAIT(lvl)
+
+
 #if defined (DBG_LVL)
     /** Macro that unwraps all arguments in (parentheses) as variadic arguments.
 

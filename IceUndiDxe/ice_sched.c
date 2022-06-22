@@ -27,6 +27,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ***************************************************************************/
 
+#include "Ice.h"
+
 #include "ice_sched.h"
 
 
@@ -274,6 +276,7 @@ ice_aq_query_sched_elems(struct ice_hw *hw, u16 elems_req,
 			 struct ice_aqc_txsched_elem_data *buf, u16 buf_size,
 			 u16 *elems_ret, struct ice_sq_cd *cd)
 {
+	DEBUGPRINT(CRITICAL, ("***\n"));
 	return ice_aqc_send_sched_elem_cmd(hw, ice_aqc_opc_get_sched_elems,
 					   elems_req, (void *)buf, buf_size,
 					   elems_ret, cd);
@@ -358,6 +361,7 @@ ice_aq_delete_sched_elems(struct ice_hw *hw, u16 grps_req,
 			  struct ice_aqc_delete_elem *buf, u16 buf_size,
 			  u16 *grps_del, struct ice_sq_cd *cd)
 {
+	DEBUGPRINT(CRITICAL, ("***\n"));
 	return ice_aqc_send_sched_elem_cmd(hw, ice_aqc_opc_delete_sched_elems,
 					   grps_req, (void *)buf, buf_size,
 					   grps_del, cd);
@@ -409,7 +413,7 @@ ice_sched_remove_elems(struct ice_hw *hw, struct ice_sched_node *parent,
  *
  * This function retrieves the first node of the given layer from the subtree
  */
-static struct ice_sched_node *
+struct ice_sched_node *
 ice_sched_get_first_node(struct ice_port_info *pi,
 			 struct ice_sched_node *parent, u8 layer)
 {
@@ -556,6 +560,9 @@ ice_aq_add_sched_elems(struct ice_hw *hw, u16 grps_req,
 		       struct ice_aqc_add_elem *buf, u16 buf_size,
 		       u16 *grps_added, struct ice_sq_cd *cd)
 {
+	DEBUGPRINT(CRITICAL, ("***\n"));
+	// should no longer use this command!
+	while ( 1 ) {}
 	return ice_aqc_send_sched_elem_cmd(hw, ice_aqc_opc_add_sched_elems,
 					   grps_req, (void *)buf, buf_size,
 					   grps_added, cd);
@@ -581,6 +588,7 @@ ice_aq_cfg_sched_elems(struct ice_hw *hw, u16 elems_req,
 		       struct ice_aqc_txsched_elem_data *buf, u16 buf_size,
 		       u16 *elems_cfgd, struct ice_sq_cd *cd)
 {
+	DEBUGPRINT(CRITICAL, ("***\n"));
 	return ice_aqc_send_sched_elem_cmd(hw, ice_aqc_opc_cfg_sched_elems,
 					   elems_req, (void *)buf, buf_size,
 					   elems_cfgd, cd);
@@ -606,6 +614,7 @@ ice_aq_move_sched_elems(struct ice_hw *hw, u16 grps_req,
 			struct ice_aqc_move_elem *buf, u16 buf_size,
 			u16 *grps_movd, struct ice_sq_cd *cd)
 {
+	DEBUGPRINT(CRITICAL, ("***\n"));
 	return ice_aqc_send_sched_elem_cmd(hw, ice_aqc_opc_move_sched_elems,
 					   grps_req, (void *)buf, buf_size,
 					   grps_movd, cd);
@@ -630,6 +639,7 @@ static enum ice_status
 ice_aq_suspend_sched_elems(struct ice_hw *hw, u16 elems_req, __le32 *buf,
 			   u16 buf_size, u16 *elems_ret, struct ice_sq_cd *cd)
 {
+	DEBUGPRINT(CRITICAL, ("***\n"));
 	return ice_aqc_send_sched_elem_cmd(hw, ice_aqc_opc_suspend_sched_elems,
 					   elems_req, (void *)buf, buf_size,
 					   elems_ret, cd);
@@ -654,6 +664,7 @@ static enum ice_status
 ice_aq_resume_sched_elems(struct ice_hw *hw, u16 elems_req, __le32 *buf,
 			  u16 buf_size, u16 *elems_ret, struct ice_sq_cd *cd)
 {
+	DEBUGPRINT(CRITICAL, ("***\n"));
 	return ice_aqc_send_sched_elem_cmd(hw, ice_aqc_opc_resume_sched_elems,
 					   elems_req, (void *)buf, buf_size,
 					   elems_ret, cd);
@@ -1179,8 +1190,11 @@ ice_sched_add_elems(struct ice_port_info *pi, struct ice_sched_node *tc_node,
 			CPU_TO_LE16(ICE_SCHED_DFLT_BW_WT);
 	}
 
+	
+	DEBUGPRINT(CRITICAL, ("***\n"));
 	status = ice_aq_add_sched_elems(hw, 1, buf, buf_size,
 					&num_groups_added, NULL);
+	DEBUGPRINT(CRITICAL, ("***\n"));
 	if (status != ICE_SUCCESS || num_groups_added != 1) {
 		ice_debug(hw, ICE_DBG_SCHED, "add node failed FW Error %d\n",
 			  hw->adminq.sq_last_status);
@@ -1304,10 +1318,13 @@ ice_sched_add_nodes_to_layer(struct ice_port_info *pi,
 #endif /* __CHECKER__ */
 		u32 temp;
 
+				
+		DEBUGPRINT(CRITICAL, ("***\n"));
 		status = ice_sched_add_nodes_to_hw_layer(pi, tc_node, parent,
 							 layer,	new_num_nodes,
 							 first_teid_ptr,
 							 &num_added);
+		DEBUGPRINT(CRITICAL, ("***\n"));
 		if (status == ICE_SUCCESS)
 			*num_nodes_added += num_added;
 		/* added more nodes than requested ? */
@@ -1363,7 +1380,7 @@ static u8 ice_sched_get_qgrp_layer(struct ice_hw *hw)
  *
  * This function returns the current VSI layer number
  */
-static u8 ice_sched_get_vsi_layer(struct ice_hw *hw)
+u8 ice_sched_get_vsi_layer(struct ice_hw *hw)
 {
 	/* Num Layers       VSI layer
 	 *     9               6
@@ -1767,12 +1784,21 @@ enum ice_status ice_sched_init_port(struct ice_port_info *pi)
 		pi->last_node_teid =
 			LE32_TO_CPU(buf[0].generic[num_elems - 1].node_teid);
 
+
+	DEBUGPRINT(CRITICAL, ("*** query topo found last node TEID %08x\n",
+			      pi->last_node_teid));
+
+
+	status = ICE_SUCCESS;
+	if (1) {
 #ifndef ISCSI_CRASH_DUMP_SUPPORT
 	/* Insert the Tx Sched root node */
 	status = ice_sched_add_root_node(pi, &buf[0].generic[0]);
 	if (status)
 		goto err_init_port;
 
+	DEBUGPRINT(CRITICAL, ("*** parsing default tree\n"));
+	if (1) {
 	/* Parse the default tree and cache the information */
 	for (i = 0; i < num_branches; i++) {
 		num_elems = LE16_TO_CPU(buf[i].hdr.num_elems);
@@ -1789,12 +1815,16 @@ enum ice_status ice_sched_init_port(struct ice_port_info *pi)
 				goto err_init_port;
 		}
 	}
+	}
 
 	/* Remove the default nodes. */
-	if (pi->root)
+	DEBUGPRINT(CRITICAL, ("*** removing default nodes\n"));
+	if (0 && pi->root)
 		ice_sched_rm_dflt_nodes(pi);
+	DEBUGPRINT(CRITICAL, ("***\n"));
 
 #endif /* !ISCSI_CRASH_DUMP_SUPPORT */
+	}
 	/* initialize the port for handling the scheduler tree */
 	pi->port_state = ICE_SCHED_PORT_STATE_READY;
 	ice_init_lock(&pi->sched_lock);
@@ -2273,12 +2303,17 @@ ice_sched_add_vsi_child_nodes(struct ice_port_info *pi, u16 vsi_handle,
 		if (!parent)
 			return ICE_ERR_CFG;
 
+				
+		DEBUGPRINT(CRITICAL, ("***\n"));
+
 		status = ice_sched_add_nodes_to_layer(pi, tc_node, parent, i,
 						      num_nodes[i],
 						      &first_node_teid,
 						      &num_added);
 		if (status != ICE_SUCCESS || num_nodes[i] != num_added)
 			return ICE_ERR_CFG;
+
+		DEBUGPRINT(CRITICAL, ("*** added layer %d TEID %08x\n", i, first_node_teid));
 
 		/* The newly added node can be a new parent for the next
 		 * layer nodes
@@ -2371,14 +2406,20 @@ ice_sched_add_vsi_support_nodes(struct ice_port_info *pi, u16 vsi_handle,
 	if (!pi)
 		return ICE_ERR_PARAM;
 
+	DEBUGPRINT(CRITICAL, ("***\n"));
+
 	vsil = ice_sched_get_vsi_layer(pi->hw);
 	for (i = pi->hw->sw_entry_point_layer; i <= vsil; i++) {
+		DEBUGPRINT(CRITICAL, ("***\n"));
+			
 		status = ice_sched_add_nodes_to_layer(pi, tc_node, parent,
 						      i, num_nodes[i],
 						      &first_node_teid,
 						      &num_added);
 		if (status != ICE_SUCCESS || num_nodes[i] != num_added)
 			return ICE_ERR_CFG;
+
+		DEBUGPRINT(CRITICAL, ("*** added layer %d TEID %08x\n", i, first_node_teid));
 
 		/* The newly added node can be a new parent for the next
 		 * layer nodes
@@ -2413,13 +2454,20 @@ ice_sched_add_vsi_to_topo(struct ice_port_info *pi, u16 vsi_handle, u8 tc)
 	u16 num_nodes[ICE_AQC_TOPO_MAX_LEVEL_NUM] = { 0 };
 	struct ice_sched_node *tc_node;
 
+	DEBUGPRINT(CRITICAL, ("***\n"));
+
 	tc_node = ice_sched_get_tc_node(pi, tc);
 	if (!tc_node)
 		return ICE_ERR_PARAM;
 
+	DEBUGPRINT(CRITICAL, ("***\n"));
+
 	/* calculate number of supported nodes needed for this VSI */
 	ice_sched_calc_vsi_support_nodes(pi, tc_node, num_nodes);
 
+
+	DEBUGPRINT(CRITICAL, ("***\n"));
+	
 	/* add VSI supported nodes to TC subtree */
 	return ice_sched_add_vsi_support_nodes(pi, vsi_handle, tc_node,
 					       num_nodes);
@@ -2447,6 +2495,8 @@ ice_sched_update_vsi_child_nodes(struct ice_port_info *pi, u16 vsi_handle,
 	struct ice_hw *hw = pi->hw;
 	u16 prev_numqs;
 
+	DEBUGPRINT(CRITICAL, ("***\n"));
+
 	tc_node = ice_sched_get_tc_node(pi, tc);
 	if (!tc_node)
 		return ICE_ERR_CFG;
@@ -2459,6 +2509,8 @@ ice_sched_update_vsi_child_nodes(struct ice_port_info *pi, u16 vsi_handle,
 	if (!vsi_ctx)
 		return ICE_ERR_PARAM;
 
+	DEBUGPRINT(CRITICAL, ("***\n"));
+
 #ifndef RDMA_SUPPORT
 	prev_numqs = vsi_ctx->sched.max_lanq[tc];
 #else
@@ -2467,6 +2519,7 @@ ice_sched_update_vsi_child_nodes(struct ice_port_info *pi, u16 vsi_handle,
 	else
 		prev_numqs = vsi_ctx->sched.max_rdmaq[tc];
 #endif /* RDMA_SUPPORT */
+	DEBUGPRINT(CRITICAL, ("***\n"));
 	/* num queues are not changed or less than the previous number */
 	if (new_numqs <= prev_numqs)
 		return status;
@@ -2485,9 +2538,11 @@ ice_sched_update_vsi_child_nodes(struct ice_port_info *pi, u16 vsi_handle,
 			return status;
 	}
 #endif /* RDMA_SUPPORT */
+	DEBUGPRINT(CRITICAL, ("***\n"));
 
 	if (new_numqs)
 		ice_sched_calc_vsi_child_nodes(hw, new_numqs, new_num_nodes);
+	DEBUGPRINT(CRITICAL, ("***\n"));
 	/* Keep the max number of queue configuration all the time. Update the
 	 * tree only if number of queues > previous number of queues. This may
 	 * leave some extra nodes in the tree if number of queues < previous
@@ -2495,10 +2550,13 @@ ice_sched_update_vsi_child_nodes(struct ice_port_info *pi, u16 vsi_handle,
 	 * may complicate the code if those nodes are part of SRL or
 	 * individually rate limited.
 	 */
+	if ( 1 ) {
 	status = ice_sched_add_vsi_child_nodes(pi, vsi_handle, tc_node,
 					       new_num_nodes, owner);
 	if (status)
 		return status;
+	}
+	DEBUGPRINT(CRITICAL, ("***\n"));
 #ifndef RDMA_SUPPORT
 	vsi_ctx->sched.max_lanq[tc] = new_numqs;
 #else
@@ -2508,6 +2566,7 @@ ice_sched_update_vsi_child_nodes(struct ice_port_info *pi, u16 vsi_handle,
 		vsi_ctx->sched.max_rdmaq[tc] = new_numqs;
 #endif /* RDMA_SUPPORT */
 
+	DEBUGPRINT(CRITICAL, ("***\n"));
 	return ICE_SUCCESS;
 }
 
@@ -2533,6 +2592,9 @@ ice_sched_cfg_vsi(struct ice_port_info *pi, u16 vsi_handle, u8 tc, u16 maxqs,
 	enum ice_status status = ICE_SUCCESS;
 	struct ice_hw *hw = pi->hw;
 
+	DEBUGPRINT(CRITICAL, ("*** ice_sched_cfg_vsi(0x%04x, 0x%02x, %d, %d, %d)\n",
+			      vsi_handle, tc, maxqs, owner, enable));
+
 	ice_debug(pi->hw, ICE_DBG_SCHED, "add/config VSI %d\n", vsi_handle);
 	tc_node = ice_sched_get_tc_node(pi, tc);
 	if (!tc_node)
@@ -2542,6 +2604,9 @@ ice_sched_cfg_vsi(struct ice_port_info *pi, u16 vsi_handle, u8 tc, u16 maxqs,
 		return ICE_ERR_PARAM;
 	vsi_node = ice_sched_get_vsi_node(pi, tc_node, vsi_handle);
 
+	DEBUGPRINT(CRITICAL, ("*** ice_sched_cfg_vsi() tc_node=%p vsi_ctx=%p vsi_node=%p\n",
+			      tc_node, vsi_ctx, vsi_node));
+	
 	/* suspend the VSI if TC is not enabled */
 	if (!enable) {
 		if (vsi_node && vsi_node->in_use) {
@@ -2555,16 +2620,21 @@ ice_sched_cfg_vsi(struct ice_port_info *pi, u16 vsi_handle, u8 tc, u16 maxqs,
 		return status;
 	}
 
+	DEBUGPRINT(CRITICAL, ("***\n"));
+
 	/* TC is enabled, if it is a new VSI then add it to the tree */
 	if (!vsi_node) {
+		DEBUGPRINT(CRITICAL, ("***\n"));
 		status = ice_sched_add_vsi_to_topo(pi, vsi_handle, tc);
 		if (status)
 			return status;
 
+		DEBUGPRINT(CRITICAL, ("***\n"));
 		vsi_node = ice_sched_get_vsi_node(pi, tc_node, vsi_handle);
 		if (!vsi_node)
 			return ICE_ERR_CFG;
 
+		DEBUGPRINT(CRITICAL, ("***\n"));
 		vsi_ctx->sched.vsi_node[tc] = vsi_node;
 		vsi_node->in_use = true;
 		/* invalidate the max queues whenever VSI gets added first time
@@ -2577,11 +2647,15 @@ ice_sched_cfg_vsi(struct ice_port_info *pi, u16 vsi_handle, u8 tc, u16 maxqs,
 #endif
 	}
 
+	DEBUGPRINT(CRITICAL, ("***\n"));
+
 	/* update the VSI child nodes */
 	status = ice_sched_update_vsi_child_nodes(pi, vsi_handle, tc, maxqs,
 						  owner);
 	if (status)
 		return status;
+
+	DEBUGPRINT(CRITICAL, ("***\n"));
 
 	/* TC is enabled, resume the VSI if it is in the suspend state */
 	if (!vsi_node->in_use) {
@@ -2591,6 +2665,8 @@ ice_sched_cfg_vsi(struct ice_port_info *pi, u16 vsi_handle, u8 tc, u16 maxqs,
 		if (!status)
 			vsi_node->in_use = true;
 	}
+
+	DEBUGPRINT(CRITICAL, ("***\n"));
 
 	return status;
 }

@@ -471,7 +471,7 @@ IceTransmit (
   IceBlockIt (AdapterInfo, FALSE);
 
   //Force wait
-  //OpFlags |= PXE_OPFLAGS_TRANSMIT_BLOCK;
+  OpFlags |= PXE_OPFLAGS_TRANSMIT_BLOCK;
   // If the OpFlags tells us to wait for the packet to hit the wire, we will wait.
   if ((OpFlags & PXE_OPFLAGS_TRANSMIT_BLOCK) != 0) {
     WaitMsec = 10000;
@@ -486,10 +486,10 @@ IceTransmit (
 
     // If we waited for a while, and it didn't finish then the HW must be bad.
     if ((TransmitDescriptor->cmd_type_offset_bsz & ICE_TX_DESC_DTYPE_DESC_DONE) == 0) {
-      DEBUGPRINT (TX | CRITICAL, ("Device failure\n"));
+      DEBUGPRINT (CRITICAL, ("Device failure\n"));
       return PXE_STATCODE_DEVICE_FAILURE;
     } else {
-      DEBUGPRINT (TX, ("Transmit success\n"));
+      DEBUGPRINT (CRITICAL, ("Transmit success\n"));
     }
   }
 
@@ -1067,6 +1067,10 @@ IceConfigureTxQueues (
   AqBuff->num_txqs = 1;
   AqBuff->parent_teid   = Hw->port_info[0].last_node_teid;
 
+  DEBUGPRINT(CRITICAL, ("*** Add TXQ using parent TEID %08x\n",
+			AqBuff->parent_teid));
+  //while ( 1 ) {}
+
   ice_set_ctx (Hw, (UINT8 *)&TxContext, AqBuff->txqs[0].txq_ctx, ice_tlan_ctx_info);
 
   IceStatus = ice_ena_vsi_txq (
@@ -1083,6 +1087,7 @@ IceConfigureTxQueues (
   // We need to store q_teid to use it later as a parameter in
   // ice_dis_vsi_txq
   AdapterInfo->Vsi.TxRing.TxqTeid = AqBuff->txqs[0].q_teid;
+  DEBUGPRINT(CRITICAL, ("*** added TEID %08x\n", AdapterInfo->Vsi.TxRing.TxqTeid));
 
   if (IceStatus != ICE_SUCCESS) {
     DEBUGPRINT (
@@ -1535,6 +1540,30 @@ IceSetupPFSwitch (
   AdapterInfo->Vsi.VsiCtx.info.inner_vlan_flags |= ICE_AQ_VSI_INNER_VLAN_TX_MODE_ALL;
   AdapterInfo->Vsi.VsiCtx.info.inner_vlan_flags |= ICE_AQ_VSI_INNER_VLAN_EMODE_NOTHING;
 
+
+  struct ice_sched_node *tc_node;
+  struct ice_sched_node *vsi_node;
+  struct ice_sched_node *first_node;
+  u8 vsil;
+
+  extern u8 ice_sched_get_vsi_layer(struct ice_hw *hw);
+  extern struct ice_sched_node *
+	  ice_sched_get_first_node(struct ice_port_info *pi,
+				   struct ice_sched_node *parent, u8 layer);
+
+  
+  DEBUGPRINT(CRITICAL, ("*** have vsi_num 0x%x\n", Hw->fw_vsi_num));
+  vsil = ice_sched_get_vsi_layer(Hw);
+  DEBUGPRINT(CRITICAL, ("*** have vsil %d\n", vsil));
+  tc_node = ice_sched_get_tc_node(Hw->port_info, 0);
+  DEBUGPRINT(CRITICAL, ("*** have TC0 node %p\n", tc_node));
+  first_node = ice_sched_get_first_node(Hw->port_info, tc_node, vsil);
+  DEBUGPRINT(CRITICAL, ("*** have TC0 VSI layer first node %p\n", first_node));
+  vsi_node = ice_sched_get_vsi_node(Hw->port_info, tc_node, Hw->fw_vsi_num);
+  DEBUGPRINT(CRITICAL, ("*** have VSI node %p\n", vsi_node));
+
+  DEBUGPRINT(CRITICAL, ("***\n"));
+  if ( 0 ) {
   IceStatus = ice_aq_update_vsi (Hw, &AdapterInfo->Vsi.VsiCtx, NULL);
   if (IceStatus != ICE_SUCCESS) {
     DEBUGPRINT (
@@ -1543,7 +1572,9 @@ IceSetupPFSwitch (
     );
     return EFI_DEVICE_ERROR;
   }
-
+  }
+  if ( 0 ) {
+  DEBUGPRINT(CRITICAL, ("*** ice_cfg_vsi_lan() start\n"));
   IceStatus = ice_cfg_vsi_lan (
                 Hw->port_info,
                 Hw->fw_vsi_num,
@@ -1557,12 +1588,15 @@ IceSetupPFSwitch (
     );
     return EFI_DEVICE_ERROR;
   }
-
+  DEBUGPRINT(CRITICAL, ("*** ice_cfg_vsi_lan() done\n"));
+  //while ( 1 ) {}
+  }
   // Add RX rule to set FW VSI as default
 
   // Set FW VSI as default VSI for active PXE port
 
   // Add TX rule to set FW VSI as default
+  if ( 0 ) {
   IceStatus = ice_cfg_dflt_vsi (
                 PortInfo,
                 AdapterInfo->Vsi.Id,
@@ -1573,8 +1607,10 @@ IceSetupPFSwitch (
     DEBUGPRINT (CRITICAL, ("ice_cfg_dflt_vsi ICE_FLTR_TX returned %d\n", IceStatus));
     return EFI_DEVICE_ERROR;
   }
-
+  DEBUGPRINT(CRITICAL, ("***\n"));
+  }
   // Add RX rule to set FW VSI as default
+  if ( 0 ) {
   IceStatus = ice_cfg_dflt_vsi (
                 PortInfo,
                 AdapterInfo->Vsi.Id,
@@ -1585,6 +1621,9 @@ IceSetupPFSwitch (
     DEBUGPRINT (CRITICAL, ("ice_cfg_dflt_vsi ICE_FLTR_RX returned %d\n", IceStatus));
     return EFI_DEVICE_ERROR;
   }
+    DEBUGPRINT(CRITICAL, ("***\n"));
+  }
+  if ( 0 ) {
 #ifdef BMSM_MODE
   IceStatus = ice_set_vsi_promisc_on_port (
                 Hw,
@@ -1620,8 +1659,11 @@ IceSetupPFSwitch (
     }
   }
 #endif /* BMSM_MODE */
+    DEBUGPRINT(CRITICAL, ("***\n"));
+  }
   AdapterInfo->CurrentPromiscuousMask = ICE_PROMISC_UCAST_RX | ICE_PROMISC_BCAST_RX;
 
+  if ( 0 ) {
 #if !defined (SIMICS_SUPPORT)
 #ifdef BMSM_MODE
   IceStatus = ice_aq_set_port_params (PortInfo, AdapterInfo->Vsi.Id, TRUE, TRUE, FALSE, NULL, NULL);
@@ -1636,6 +1678,8 @@ IceSetupPFSwitch (
     return EFI_DEVICE_ERROR;
   }
 #endif /* !defined (SIMICS_SUPPORT) */
+  DEBUGPRINT(CRITICAL, ("***\n"));
+  }
   return Status;
 }
 
@@ -2287,7 +2331,9 @@ IceFirstTimeInit (
     return Status;
   }
 
+  DEBUGPRINT(CRITICAL, ("***\n"));
   IceStatus = ice_init_hw (Hw);
+  DEBUGPRINT(CRITICAL, ("***\n"));  
 
   if (IceStatus != ICE_SUCCESS) {
 
@@ -2305,12 +2351,14 @@ IceFirstTimeInit (
     goto ErrorReleaseController;
   }
 
+  DEBUGPRINT(CRITICAL, ("***\n"));  
   Status = GetLinkState (AdapterInfo, &LinkState);
   if (EFI_ERROR (Status)) {
     DEBUGPRINT (CRITICAL, ("GetLinkState returned %r\n", Status));
     goto ErrorReleaseController;
   }
 
+  DEBUGPRINT(CRITICAL, ("***\n"));  
   if (LinkState == LINK_STATE_DOWN_SW_FORCED) {
     Status = ResetLinkConfig (AdapterInfo);
     if (EFI_ERROR (Status)) {
@@ -2319,7 +2367,9 @@ IceFirstTimeInit (
     }
   }
 
+  DEBUGPRINT(CRITICAL, ("***\n"));  
   EnablePxeModeDescFetch (AdapterInfo);
+  DEBUGPRINT(CRITICAL, ("***\n"));  
 
 
   // Set Port addr

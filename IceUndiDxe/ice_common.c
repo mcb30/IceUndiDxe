@@ -27,6 +27,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ***************************************************************************/
 
+#include "Ice.h"
+
 #include "ice_common.h"
 #include "ice_sched.h"
 #include "ice_adminq_cmd.h"
@@ -1511,6 +1513,7 @@ void ice_set_umac_shared(struct ice_hw *hw)
  */
 enum ice_status ice_init_hw(struct ice_hw *hw)
 {
+	DEBUGPRINT(CRITICAL, ("***\n"));
 #if !defined(FPGA_SUPPORT) && !defined(LEGACY_PREBOOT_SUPPORT) || defined(QV_SUPPORT)
 	struct ice_aqc_get_phy_caps_data *pcaps;
 #endif /* !FPGA_SUPPORT && !SWITCH_MODE && !LEGACY_PREBOOT_SUPPORT || QV_SUPPORT */
@@ -1524,6 +1527,7 @@ enum ice_status ice_init_hw(struct ice_hw *hw)
 	void *mac_buf;
 #endif /* FPGA_SUPPORT && SWITCH_MODE */
 
+	DEBUGPRINT(CRITICAL, ("***\n"));
 #ifdef QV_SUPPORT
 	if (hw->is_fpga || hw->is_switch_mode)
 		UNUSED_VAR(pcaps);
@@ -1551,6 +1555,8 @@ enum ice_status ice_init_hw(struct ice_hw *hw)
 	hw->lm_mode = ICE_LM_MODE_IES_API;
 #endif /* BMSM_MODE && !PREBOOT_SUPPORT */
 
+	DEBUGPRINT(CRITICAL, ("***\n"));
+
 	/* Set MAC type based on DeviceID */
 	status = ice_set_mac_type(hw);
 	if (status)
@@ -1569,6 +1575,7 @@ enum ice_status ice_init_hw(struct ice_hw *hw)
 #endif /* NO_PF_RESET_DISABLE */
 	if (status)
 		return status;
+	DEBUGPRINT(CRITICAL, ("***\n"));
 #ifdef QV_SUPPORT
 	/* Do not call this in tools q via CSRs as
 	 * there are registers which are not on a allowlist in SW DCR 2824.
@@ -1585,6 +1592,9 @@ enum ice_status ice_init_hw(struct ice_hw *hw)
 	hw->fw_vsi_num = ICE_DFLT_VSI_INVAL;
 #endif /* PREBOOT_SUPPORT || QV_SUPPORT */
 
+
+	DEBUGPRINT(CRITICAL, ("***\n"));
+	
 #ifdef QV_SUPPORT
 	if (!hw->toolsq_in_csr) {
 		status = ice_init_all_ctrlq(hw);
@@ -1596,6 +1606,8 @@ enum ice_status ice_init_hw(struct ice_hw *hw)
 	if (status)
 		goto err_unroll_cqinit;
 #endif /* QV_SUPPORT */
+
+	DEBUGPRINT(CRITICAL, ("***\n"));
 
 #ifdef FWLOG_SUPPORT_V2
 	ice_fwlog_set_support_ena(hw);
@@ -1618,22 +1630,31 @@ enum ice_status ice_init_hw(struct ice_hw *hw)
 	}
 #endif /* FWLOG_SUPPORT_V2 */
 
+	DEBUGPRINT(CRITICAL, ("***\n"));
+
 #ifndef LEGACY_PREBOOT_SUPPORT
 	status = ice_init_nvm(hw);
 	if (status)
 		goto err_unroll_cqinit;
 #endif /* !LEGACY_PREBOOT_SUPPORT */
 
+	DEBUGPRINT(CRITICAL, ("***\n"));
+
 #if !defined(NO_RECOVERY_MODE_SUPPORT) && !defined(QV_SUPPORT) && !defined(LEGACY_PREBOOT_SUPPORT)
 	if (ice_get_fw_mode(hw) == ICE_FW_MODE_ROLLBACK)
 		ice_print_rollback_msg(hw);
 #endif /* !NO_RECOVERY_MODE_SUPPORT && !QV_SUPPORT && !LEGACY_PREBOOT_SUPPORT */
 
+	DEBUGPRINT(CRITICAL, ("***\n"));
+	
 #if !defined(PREBOOT_SUPPORT) && !defined(QV_SUPPORT)
 	status = ice_clear_pf_cfg(hw);
 	if (status)
 		goto err_unroll_cqinit;
 #endif /* !PREBOOT_SUPPORT && !QV_SUPPORT */
+
+
+	DEBUGPRINT(CRITICAL, ("***\n"));
 
 #ifdef FDIR_SUPPORT
 	/* Set bit to enable Flow Director filters */
@@ -1641,9 +1662,13 @@ enum ice_status ice_init_hw(struct ice_hw *hw)
 	INIT_LIST_HEAD(&hw->fdir_list_head);
 #endif /* FDIR_SUPPORT */
 
+	DEBUGPRINT(CRITICAL, ("***\n"));
+
 #if !defined(QV_SUPPORT) && !defined(PREBOOT_SUPPORT)
 	ice_clear_pxe_mode(hw);
 #endif /* !defined(QV_SUPPORT) && !defined(PREBOOT_SUPPORT) */
+
+	DEBUGPRINT(CRITICAL, ("***\n"));
 
 	status = ice_get_caps(hw);
 	if (status)
@@ -1659,6 +1684,10 @@ enum ice_status ice_init_hw(struct ice_hw *hw)
 	/* set the back pointer to HW */
 	hw->port_info->hw = hw;
 
+
+
+	DEBUGPRINT(CRITICAL, ("***\n"));
+	
 	/* Initialize port_info struct with switch configuration data */
 #ifdef QV_SUPPORT
 	if (hw->traffic_init) {
@@ -1671,6 +1700,8 @@ enum ice_status ice_init_hw(struct ice_hw *hw)
 	if (status)
 		goto err_unroll_alloc;
 #endif /* QV_SUPPORT */
+
+	DEBUGPRINT(CRITICAL, ("***\n"));
 
 #ifndef BMSM_MODE
 #ifdef QV_SUPPORT
@@ -1685,6 +1716,10 @@ enum ice_status ice_init_hw(struct ice_hw *hw)
 	if (!hw->traffic_init)
 		goto skip_sched;
 #endif /* QV_SUPPORT */
+
+	DEBUGPRINT(CRITICAL, ("***\n"));
+
+	
 #ifndef LEGACY_PREBOOT_SUPPORT
 	/* Query the allocated resources for Tx scheduler */
 	status = ice_sched_query_res_alloc(hw);
@@ -1698,6 +1733,8 @@ enum ice_status ice_init_hw(struct ice_hw *hw)
 skip_sched:
 #endif /* QV SUPPORT */
 
+	DEBUGPRINT(CRITICAL, ("***\n"));
+
 #ifdef QV_SUPPORT
 skip_switch_mode:
 	if (hw->is_switch_mode)
@@ -1707,6 +1744,10 @@ skip_switch_mode:
 	status = ice_sched_init_port(hw->port_info);
 	if (status)
 		goto err_unroll_sched;
+
+
+	DEBUGPRINT(CRITICAL, ("***\n"));
+	
 #if !defined(FPGA_SUPPORT) || defined(QV_SUPPORT)
 #ifdef QV_SUPPORT
 	if (hw->is_fpga)
@@ -1719,6 +1760,8 @@ skip_switch_mode:
 		status = ICE_ERR_NO_MEMORY;
 		goto err_unroll_sched;
 	}
+
+	DEBUGPRINT(CRITICAL, ("***\n"));
 
 	/* Initialize port_info struct with PHY capabilities */
 	status = ice_aq_get_phy_caps(hw->port_info, false,
@@ -1738,6 +1781,10 @@ skip_no_fpga_support:
 skip_no_switch_mode:
 #endif /* QV_SUPPORT */
 #endif /* !FPGA_SUPPORT || QV_SUPPORT */
+
+
+	DEBUGPRINT(CRITICAL, ("***\n"));
+	
 #ifndef LEGACY_PREBOOT_SUPPORT
 #ifndef ISCSI_CRASH_DUMP_SUPPORT
 #ifdef QV_SUPPORT
@@ -1746,6 +1793,7 @@ skip_no_switch_mode:
 	/* need a valid SW entry point to build a Tx tree */
 	if (!hw->sw_entry_point_layer) {
 #endif /* QV_SUPPORT */
+		DEBUGPRINT(CRITICAL, ("***\n"));
 		ice_debug(hw, ICE_DBG_SCHED, "invalid sw entry point\n");
 		status = ICE_ERR_CFG;
 		goto err_unroll_sched;
@@ -1756,15 +1804,20 @@ skip_no_switch_mode:
 	if (!hw->max_burst_size)
 		ice_cfg_rl_burst_size(hw, ICE_SCHED_DFLT_BURST_SIZE);
 #endif /* !LEGACY_PREBOOT_SUPPORT */
+	DEBUGPRINT(CRITICAL, ("***\n"));
 	status = ice_init_fltr_mgmt_struct(hw);
 	if (status)
 		goto err_unroll_sched;
+
+	DEBUGPRINT(CRITICAL, ("***\n"));
 
 #if defined(FPGA_SUPPORT) || defined(E822S_SUPPORT) || !defined(NO_SBQ_SUPPORT) 
 	/* some of the register write workarounds to get Rx working */
 	ice_dev_onetime_setup(hw);
 #endif /* FPGA_SUPPORT || E822S_SUPPORT || (!NO_SBQ_SUPPORT && SWITCH_MODE) */
 
+	DEBUGPRINT(CRITICAL, ("***\n"));
+	
 	/* Get MAC information */
 #ifdef FPGA_SUPPORT
 #ifdef QV_SUPPORT
@@ -1802,6 +1855,10 @@ skip_no_switch_mode:
 #ifdef E810C_SUPPORT
 	}
 #endif /* E810C_SUPPORT */
+
+
+	DEBUGPRINT(CRITICAL, ("***\n"));
+	
 #ifdef QV_SUPPORT
 skip_fpga_no_switch_mode:
 #endif /* QV_SUPPORT */
@@ -2700,10 +2757,18 @@ enum ice_status
 ice_aq_send_cmd(struct ice_hw *hw, struct ice_aq_desc *desc, void *buf,
 		u16 buf_size, struct ice_sq_cd *cd)
 {
+	int crap = (desc->opcode == 0x0008 ||
+		    desc->opcode == 0x0009 ||
+		    desc->opcode == 0x0701);
+	
+	if (!crap) {
+		DEBUGPRINT(CRITICAL, ("*** AQ cmd %04x\n", LE16_TO_CPU(desc->opcode)));
+	}
 #if !defined(NO_FLEXP_SUPPORT) && defined(LINUX_SUPPORT)
 	struct ice_aqc_req_res *cmd = &desc->params.res_owner;
 	bool lock_acquired = false;
 	enum ice_status status;
+
 
 	/* When a package download is in process (i.e. when the firmware's
 	 * Global Configuration Lock resource is held), only the Download
@@ -6934,13 +6999,18 @@ ice_get_lan_q_ctx(struct ice_hw *hw, u16 vsi_handle, u8 tc, u16 q_handle)
 	struct ice_vsi_ctx *vsi;
 	struct ice_q_ctx *q_ctx;
 
+	DEBUGPRINT(CRITICAL, ("*** vsi_handle=0x%x\n", vsi_handle));
+
 	vsi = ice_get_vsi_ctx(hw, vsi_handle);
 	if (!vsi)
 		return NULL;
+	DEBUGPRINT(CRITICAL, ("*** num_lan_q_entries[%d]=%d\n", vsi->num_lan_q_entries[tc], tc));
 	if (q_handle >= vsi->num_lan_q_entries[tc])
 		return NULL;
+	DEBUGPRINT(CRITICAL, ("***\n"));
 	if (!vsi->lan_q_ctx[tc])
 		return NULL;
+	DEBUGPRINT(CRITICAL, ("***\n"));
 	q_ctx = vsi->lan_q_ctx[tc];
 	return &q_ctx[q_handle];
 }
@@ -6969,6 +7039,8 @@ ice_ena_vsi_txq(struct ice_port_info *pi, u16 vsi_handle, u8 tc, u16 q_handle,
 	enum ice_status status;
 	struct ice_hw *hw;
 
+	DEBUGPRINT(CRITICAL, ("***\n"));
+
 	if (!pi || pi->port_state != ICE_SCHED_PORT_STATE_READY)
 		return ICE_ERR_CFG;
 
@@ -6982,21 +7054,35 @@ ice_ena_vsi_txq(struct ice_port_info *pi, u16 vsi_handle, u8 tc, u16 q_handle,
 
 	ice_acquire_lock(&pi->sched_lock);
 
+	DEBUGPRINT(CRITICAL, ("***\n"));
+
+
+	struct ice_q_ctx q_ctx_fuckit;
 	q_ctx = ice_get_lan_q_ctx(hw, vsi_handle, tc, q_handle);
 	if (!q_ctx) {
 		ice_debug(hw, ICE_DBG_SCHED, "Enaq: invalid queue handle %d\n",
 			  q_handle);
-		status = ICE_ERR_PARAM;
-		goto ena_txq_exit;
+		//status = ICE_ERR_PARAM;
+		//goto ena_txq_exit;
+		DEBUGPRINT(CRITICAL, ("*** no q_ctx, fucking it\n"));
+		q_ctx = &q_ctx_fuckit;
 	}
+
+	DEBUGPRINT(CRITICAL, ("***\n"));
 
 	/* find a parent node */
 	parent = ice_sched_get_free_qparent(pi, vsi_handle, tc,
 					    ICE_SCHED_NODE_OWNER_LAN);
+	//
+	parent = ice_sched_find_node_by_teid(pi->root, pi->last_node_teid);
+
 	if (!parent) {
 		status = ICE_ERR_PARAM;
 		goto ena_txq_exit;
 	}
+
+	DEBUGPRINT(CRITICAL, ("***\n"));
+
 
 	buf->parent_teid = parent->info.node_teid;
 	node.parent_teid = parent->info.node_teid;
@@ -7024,6 +7110,10 @@ ice_ena_vsi_txq(struct ice_port_info *pi, u16 vsi_handle, u8 tc, u16 q_handle,
 	buf->txqs[0].info.eir_bw.bw_alloc =
 		CPU_TO_LE16(ICE_SCHED_DFLT_BW_WT);
 
+	DEBUGPRINT(CRITICAL, ("*** well, looks as though we're adding with parent %08x\n",
+			      buf->parent_teid));
+
+
 	/* add the LAN queue */
 	status = ice_aq_add_lan_txq(hw, num_qgrps, buf, buf_size, cd);
 	if (status != ICE_SUCCESS) {
@@ -7037,6 +7127,8 @@ ice_ena_vsi_txq(struct ice_port_info *pi, u16 vsi_handle, u8 tc, u16 q_handle,
 	node.data.elem_type = ICE_AQC_ELEM_TYPE_LEAF;
 	q_ctx->q_handle = q_handle;
 	q_ctx->q_teid = LE32_TO_CPU(node.node_teid);
+
+	DEBUGPRINT(CRITICAL, ("*** added TEID %08x\n", q_ctx->q_teid));
 
 	/* add a leaf node into scheduler tree queue layer */
 	status = ice_sched_add_node(pi, hw->num_tx_sched_layers - 1, &node);
@@ -7104,6 +7196,7 @@ ice_dis_vsi_txq(struct ice_port_info *pi, u16 vsi_handle, u8 tc, u8 num_queues,
 		node = ice_sched_find_node_by_teid(pi->root, q_teids[i]);
 		if (!node)
 			continue;
+		if ( 0 ) {
 		q_ctx = ice_get_lan_q_ctx(hw, vsi_handle, tc, q_handles[i]);
 		if (!q_ctx) {
 			ice_debug(hw, ICE_DBG_SCHED, "invalid queue handle%d\n",
@@ -7115,6 +7208,7 @@ ice_dis_vsi_txq(struct ice_port_info *pi, u16 vsi_handle, u8 tc, u8 num_queues,
 				  q_ctx->q_handle, q_handles[i]);
 			continue;
 		}
+		}
 		qg_list->parent_teid = node->info.parent_teid;
 		qg_list->num_qs = 1;
 		qg_list->q_id[0] = CPU_TO_LE16(q_ids[i]);
@@ -7124,7 +7218,8 @@ ice_dis_vsi_txq(struct ice_port_info *pi, u16 vsi_handle, u8 tc, u8 num_queues,
 		if (status != ICE_SUCCESS)
 			break;
 		ice_free_sched_node(pi, node);
-		q_ctx->q_handle = ICE_INVAL_Q_HANDLE;
+		if ( 0 )
+			q_ctx->q_handle = ICE_INVAL_Q_HANDLE;
 	}
 	ice_release_lock(&pi->sched_lock);
 	ice_free(hw, qg_list);
@@ -7148,6 +7243,9 @@ ice_cfg_vsi_qs(struct ice_port_info *pi, u16 vsi_handle, u16 tc_bitmap,
 	enum ice_status status = ICE_SUCCESS;
 	u8 i;
 
+	//
+	//return status;
+
 	if (!pi || pi->port_state != ICE_SCHED_PORT_STATE_READY)
 		return ICE_ERR_CFG;
 
@@ -7157,6 +7255,10 @@ ice_cfg_vsi_qs(struct ice_port_info *pi, u16 vsi_handle, u16 tc_bitmap,
 	ice_acquire_lock(&pi->sched_lock);
 
 	ice_for_each_traffic_class(i) {
+
+		//
+		//continue;
+		
 		/* configuration is possible only if TC node is present */
 		if (!ice_sched_get_tc_node(pi, i))
 			continue;
@@ -8240,6 +8342,7 @@ ice_sched_query_elem(struct ice_hw *hw, u32 node_teid,
 	u16 buf_size, num_elem_ret = 0;
 	enum ice_status status;
 
+	DEBUGPRINT(CRITICAL, ("***\n"));
 	buf_size = sizeof(*buf);
 	ice_memset(buf, 0, buf_size, ICE_NONDMA_MEM);
 	buf->node_teid = CPU_TO_LE32(node_teid);
