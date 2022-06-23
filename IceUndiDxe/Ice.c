@@ -1708,6 +1708,10 @@ IceConfigureLinkEvents (
   PortInfo = &Hw->port_info[0];
 
 
+  //
+  return EFI_SUCCESS;
+
+
   // currently we use only link up/down notifications
   EventMask = (UINT16) ~((UINT16) ICE_AQ_LINK_EVENT_UPDOWN);
 

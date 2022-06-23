@@ -1778,9 +1778,11 @@ skip_switch_mode:
 	}
 
 	/* Initialize port_info struct with link information */
+	if ( 0 ) {
 	status = ice_aq_get_link_info(hw->port_info, false, NULL, NULL);
 	if (status)
 		goto err_unroll_sched;
+	}
 #endif /* !LEGACY_PREBOOT_SUPPORT */
 #ifdef QV_SUPPORT
 skip_no_fpga_support:
@@ -1900,10 +1902,12 @@ skip_no_fpga_no_switch_mode:
 #else /* !QV_SUPPORT */
 #ifndef LEGACY_PREBOOT_SUPPORT
 	/* enable jumbo frame support at MAC level */
+	if ( 0 ) {
 	status = ice_aq_set_mac_cfg(hw, ICE_AQ_SET_MAC_FRAME_SIZE_MAX, false,
 				    NULL);
 	if (status)
 		goto err_unroll_fltr_mgmt_struct;
+	}
 
 #endif /* !LEGACY_PREBOOT_SUPPORT */
 #endif /* QV_SUPPORT */
