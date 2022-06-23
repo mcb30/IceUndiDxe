@@ -1672,9 +1672,11 @@ enum ice_status ice_init_hw(struct ice_hw *hw)
 
 	DEBUGPRINT(CRITICAL, ("***\n"));
 
+	if ( 0 ) {
 	status = ice_get_caps(hw);
 	if (status)
 		goto err_unroll_cqinit;
+	}
 
 	hw->port_info = (struct ice_port_info *)
 			ice_malloc(hw, sizeof(*hw->port_info));
@@ -1766,12 +1768,14 @@ skip_switch_mode:
 	DEBUGPRINT(CRITICAL, ("***\n"));
 
 	/* Initialize port_info struct with PHY capabilities */
+	if ( 0 ) {
 	status = ice_aq_get_phy_caps(hw->port_info, false,
 				     ICE_AQC_REPORT_TOPO_CAP_MEDIA, pcaps, NULL);
 	ice_free(hw, pcaps);
 	if (status)
 		ice_warn(hw, "Get PHY capabilities failed status = %d, continuing anyway\n",
 			 status);
+	}
 
 	/* Initialize port_info struct with link information */
 	status = ice_aq_get_link_info(hw->port_info, false, NULL, NULL);

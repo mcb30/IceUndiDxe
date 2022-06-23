@@ -1502,6 +1502,7 @@ IceSetupPFSwitch (
 
 
   // Get main VSI parameters
+  if ( 0 ) {
   IceStatus = IceGetVsiParams (AdapterInfo, &AdapterInfo->Vsi.VsiCtx);
   if (IceStatus != ICE_SUCCESS) {
     DEBUGPRINT (
@@ -1509,6 +1510,7 @@ IceSetupPFSwitch (
       IceStatus)
     );
     return EFI_DEVICE_ERROR;
+  }
   }
 
   DEBUGPRINT (

@@ -1896,7 +1896,8 @@ enum ice_status ice_sched_query_res_alloc(struct ice_hw *hw)
 	if (!buf)
 		return ICE_ERR_NO_MEMORY;
 
-#if !defined(FPGA_SUPPORT)
+//
+#if 0 && !defined(FPGA_SUPPORT)
 	status = ice_aq_query_sched_res(hw, sizeof(*buf), buf, NULL);
 	if (status)
 		goto sched_query_out;
