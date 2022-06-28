@@ -39,7 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Dma.h"
 
 /* UNCOMMENT THE FOLLOWING DEFINE TO ENABLE DEBUGPRINTS IN SHARED CODE */
-//#define SC_DEBUG
+#define SC_DEBUG
 
 #ifdef SC_DEBUG
 #include <Library/DebugLib.h>
@@ -77,7 +77,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   ICE_DBG_USER                BIT_ULL(31)
   ICE_DBG_ALL                 0xFFFFFFFFFFFFFFFFULL */
 
-#define SC_DBG_LVL 0
+#define SC_DBG_LVL ICE_DBG_AQ
 
 #define ice_debug(hw, mask, ...)         \
   do {                                   \
@@ -343,7 +343,8 @@ typedef BOOLEAN bool;
 
    @retval   None
 **/
-#define ice_debug_array(Hw, Type, Rowsize, Groupsize, Buf, Len)
+#define ice_debug_array(Hw, Type, Rowsize, Groupsize, Buf, Len) \
+	DBG_HDA(0, Buf, Len)
 
 /** Macro wrapper for shared code, blank here
 

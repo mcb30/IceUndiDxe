@@ -29,3 +29,49 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /** @file DebugTools.c Debug macros and utilities. */
 #include <DebugTools.h>
+
+
+#define dbg_printf(...) DEBUGDUMP(CRITICAL, (__VA_ARGS__))
+
+typedef unsigned char uint8_t;
+
+static inline int isprint ( int character ) {
+
+	return ( ( character >= ' ' ) && ( character <= '~' ) );
+}
+
+static void dbg_hex_dump_da_row ( unsigned long dispaddr, const void *data,
+				  unsigned long len, unsigned int offset ) {
+	const uint8_t *bytes = data;
+	unsigned int i;
+	uint8_t byte;
+
+	dbg_printf ( "%08lx :", ( dispaddr + offset ) );
+	for ( i = offset ; i < ( offset + 16 ) ; i++ ) {
+		if ( i >= len ) {
+			dbg_printf ( "   " );
+			continue;
+		}
+		dbg_printf ( "%c%02x",
+			     ( ( ( i % 16 ) == 8 ) ? '-' : ' ' ), bytes[i] );
+	}
+	dbg_printf ( " : " );
+	for ( i = offset ; i < ( offset + 16 ) ; i++ ) {
+		if ( i >= len ) {
+			dbg_printf ( " " );
+			continue;
+		}
+		byte = bytes[i];
+		dbg_printf ( "%c", ( isprint ( byte ) ? byte : '.' ) );
+	}
+	dbg_printf ( "\n" );
+}
+
+void dbg_hex_dump_da ( unsigned long dispaddr, const void *data,
+		       unsigned long len ) {
+	unsigned int offset;
+
+	for ( offset = 0 ; offset < len ; offset += 16 ) {
+		dbg_hex_dump_da_row ( dispaddr, data, len, offset );
+	}
+}

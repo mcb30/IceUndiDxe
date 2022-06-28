@@ -818,6 +818,8 @@ UndiInitialize (
 
   UINT8                i = 0;
 
+  DEBUGPRINT (CRITICAL, ("****** UndiInitialize\n"));
+
   if (AdapterInfo->DriverBusy) {
     DEBUGPRINT (CRITICAL, ("ERROR: UndiInitialize called when driver busy\n"));
     CdbPtr->StatFlags = PXE_STATFLAGS_COMMAND_FAILED;
@@ -1000,7 +1002,7 @@ UndiShutdown (
   )
 {
   // do the shutdown stuff here
-  DEBUGPRINT (DECODE, ("UndiShutdown\n"));
+  DEBUGPRINT (CRITICAL, ("****** UndiShutdown\n"));
   DEBUGWAIT (DECODE);
 
   if (AdapterInfo->DriverBusy) {

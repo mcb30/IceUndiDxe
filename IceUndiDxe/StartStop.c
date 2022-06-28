@@ -51,7 +51,7 @@ StopDriver (
   EFI_STATUS         Status = EFI_SUCCESS;
   UNDI_PRIVATE_DATA  *UndiPrivateData;
 
-  DEBUGPRINT (INIT, ("Entering StopDriver\n"));
+  DEBUGPRINT (CRITICAL, ("********************* Entering StopDriver\n"));
 
   UndiPrivateData = UNDI_PRIVATE_DATA_FROM_DRIVER_STOP (This);
 
@@ -91,7 +91,7 @@ StartDriver (
   UNDI_PRIVATE_DATA      *UndiPrivateData;
   enum                   ice_status IceStatus;
 
-  DEBUGPRINT (INIT, ("Entering StartDriver\n"));
+  DEBUGPRINT (CRITICAL, ("**************** Entering StartDriver\n"));
 
   UndiPrivateData = UNDI_PRIVATE_DATA_FROM_DRIVER_STOP (This);
 
@@ -116,6 +116,7 @@ StartDriver (
   }
 
   if (UndiPrivateData->IsChildInitialized) {
+	  DEBUGPRINT (CRITICAL, ("**** thingy in StartDriver()\n"));
     Status = IceInitHw (&UndiPrivateData->NicInfo);
     if (EFI_ERROR (Status)) {
       DEBUGPRINT (CRITICAL, ("IceInitHw returned %r\n", Status));

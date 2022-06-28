@@ -1325,6 +1325,10 @@ void ice_debug_cq(struct ice_hw *hw, void *desc, void *buf, u16 buf_len)
 #endif /* LINUX_SUPPORT && !ICE_TDD */
 	u16 datalen, flags;
 
+
+	//DEBUGPRINT(CRITICAL, ("***** wtf why u no print???????????\n"));
+
+#if 0
 #ifndef LINUX_SUPPORT
 	if (!((ICE_DBG_AQ_DESC | ICE_DBG_AQ_DESC_BUF) & hw->debug_mask))
 		return;
@@ -1333,12 +1337,17 @@ void ice_debug_cq(struct ice_hw *hw, void *desc, void *buf, u16 buf_len)
 	    !((ICE_DBG_AQ_DESC | ICE_DBG_AQ_DESC_BUF) & hw->debug_mask))
 		return;
 #endif /* !LINUX_SUPPORT */
+#endif
 
 	if (!desc)
 		return;
 
+	//DEBUGPRINT(CRITICAL, ("***** wtf why u no print???????????\n"));
+
 	datalen = LE16_TO_CPU(cq_desc->datalen);
 	flags = LE16_TO_CPU(cq_desc->flags);
+
+	//DEBUGPRINT(CRITICAL, ("***** wtf why u no print???????????\n"));
 
 #ifdef SV_SUPPORT
 	/* FIXME verify with SV team if this format is needed just for
@@ -1382,6 +1391,9 @@ void ice_debug_cq(struct ice_hw *hw, void *desc, void *buf, u16 buf_len)
 	ice_debug(hw, ICE_DBG_AQ_DESC, "\taddr (h,l)   0x%08X 0x%08X\n",
 		  LE32_TO_CPU(cq_desc->params.generic.addr_high),
 		  LE32_TO_CPU(cq_desc->params.generic.addr_low));
+	ice_debug(hw, ICE_DBG_AQ_DESC, "Raw Data:\n");
+	ice_debug_array(hw, ICE_DBG_AQ_DESC, 16, 1, (u8 *)cq_desc,
+			sizeof(*cq_desc));
 #endif /* SV_SUPPORT */
 	/* Dump buffer iff 1) one exists and 2) is either a response indicated
 	 * by the DD and/or CMP flag set or a command with the RD flag set.

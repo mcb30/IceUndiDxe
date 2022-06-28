@@ -1516,6 +1516,8 @@ InitChild (
 {
   EFI_STATUS Status;
 
+  DEBUGPRINT (CRITICAL, ("**** InitChild()\n"));
+
   if (UndiPrivateData == NULL) {
     return EFI_INVALID_PARAMETER;
   }
@@ -1799,6 +1801,8 @@ StopChild (
   )
 {
   EFI_STATUS Status;
+
+  DEBUGPRINT (CRITICAL, ("**************** StopChild\n"));
 
   if (This == NULL
     || ChildHandleBuffer == NULL

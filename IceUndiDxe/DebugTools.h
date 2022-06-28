@@ -196,4 +196,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   #define STATIC_ASSERT _Static_assert
 #endif /* STATIC_ASSERT */
 
+extern void dbg_hex_dump_da ( unsigned long dispaddr, const void *data,
+			      unsigned long len );
+
+#define DBG_HDA(dispaddr, data, len) dbg_hex_dump_da(dispaddr, data, len)
+
 #endif /* DEBUG_TOOLS_H_ */
