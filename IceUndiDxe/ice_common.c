@@ -1902,7 +1902,7 @@ skip_no_fpga_no_switch_mode:
 #else /* !QV_SUPPORT */
 #ifndef LEGACY_PREBOOT_SUPPORT
 	/* enable jumbo frame support at MAC level */
-	if ( 0 ) {
+	if ( 0 && 1 ) {
 	status = ice_aq_set_mac_cfg(hw, ICE_AQ_SET_MAC_FRAME_SIZE_MAX, false,
 				    NULL);
 	if (status)
@@ -2187,6 +2187,10 @@ ice_copy_rxq_ctx_to_hw(struct ice_hw *hw, u8 *ice_rxq_ctx, u32 rxq_index)
 
 	/* Copy each dword separately to HW */
 	for (i = 0; i < ICE_RXQ_CTX_SIZE_DWORDS; i++) {
+		//
+		DEBUGPRINT(CRITICAL, ("*** RXQ context %08x <= %08x\n",
+				      QRX_CONTEXT(i, rxq_index),
+				      *((u32 *)(ice_rxq_ctx + (i * sizeof(u32))))));
 		wr32(hw, QRX_CONTEXT(i, rxq_index),
 		     *((u32 *)(ice_rxq_ctx + (i * sizeof(u32)))));
 
@@ -2251,8 +2255,7 @@ ice_write_rxq_ctx(struct ice_hw *hw, struct ice_rlan_ctx *rlan_ctx,
 	if (!rlan_ctx)
 		return ICE_ERR_BAD_PTR;
 
-	rlan_ctx->prefena = 1;
-
+	//rlan_ctx->prefena = 1;
 	ice_set_ctx(hw, (u8 *)rlan_ctx, ctx_buf, ice_rlan_ctx_info);
 	return ice_copy_rxq_ctx_to_hw(hw, ctx_buf, rxq_index);
 }

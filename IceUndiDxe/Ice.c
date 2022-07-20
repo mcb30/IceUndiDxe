@@ -193,9 +193,11 @@ IceReceive (
   RxStatus = (UINT32) ((DescQWord & ICE_RXD_QW1_STATUS_M) >> ICE_RXD_QW1_STATUS_S);
 
   if ((RxStatus & (1 << ICE_RX_DESC_STATUS_DD_S)) != 0) {
-    DEBUGPRINT(RX, ("Descriptor done on Port %X, B/D/F %2X:%2X.%X\n",
+    DEBUGPRINT(CRITICAL, ("Descriptor done on Port %X, B/D/F %2X:%2X.%X\n",
                     AdapterInfo->PhysicalPortNumber,
                     AdapterInfo->Bus, AdapterInfo->Device, AdapterInfo->Function));
+    //
+    while ( 1 ) {}
 
     if (RxRing->NextToUse != AdapterInfo->LastRxDescReported) {
       AdapterInfo->RxPacketPending   = TRUE;
@@ -305,6 +307,8 @@ IceReceive (
 
     // Move the current cleaned buffer pointer, being careful to wrap it as needed.  Then update the hardware,
     // so it knows that an additional buffer can be used.
+    DEBUGPRINT(CRITICAL, ("*** RXQ tail %08x <= %08x\n",
+			  QRX_TAIL (0), RxRing->NextToUse));
     IceWrite32 (AdapterInfo, QRX_TAIL (0), RxRing->NextToUse);
 
     RxRing->NextToUse++;
@@ -625,12 +629,16 @@ IceSetFilter (
   {
     AdapterInfo->CurrentPromiscuousMask = PromiscuousMask;
 
+    DEBUGPRINT(CRITICAL, ("*****\n"));
+    if ( 1 ) {
     ScStatus = ice_set_vsi_promisc (
                  &AdapterInfo->Hw,
                  AdapterInfo->Vsi.Id,
                  PromiscuousMask,
                  0 // no VLAN
                );
+    }
+    DEBUGPRINT(CRITICAL, ("*****\n"));
 
     if (ScStatus != ICE_SUCCESS) {
       DEBUGPRINT (RXFILTER, ("ERROR: Failed to set Rx filter !!!\n"));
@@ -697,12 +705,16 @@ IceClearFilter (
   {
     AdapterInfo->CurrentPromiscuousMask &= ~PromiscuousMask;
 
+    DEBUGPRINT(CRITICAL, ("*****\n"));
+    if ( 0 ) {
     ScStatus = ice_clear_vsi_promisc (
                  &AdapterInfo->Hw,
                  AdapterInfo->Vsi.Id,
                  PromiscuousMask,
                  0 // no VLAN
                );
+    }
+    DEBUGPRINT(CRITICAL, ("*****\n"));
 
     if (ScStatus != ICE_SUCCESS) {
       DEBUGPRINT (RXFILTER, ("ERROR: Failed to clear Rx filter !!!\n"));
@@ -919,6 +931,11 @@ IceReceiveStart (
 
   // Enable Rx queues by setting proper bits in QRX_CTRL
   // Wait and check if status bits are changed.
+
+  DEBUGPRINT(CRITICAL, ("*** RXQ CTRL %08x <= %08x\n",
+			QRX_CTRL (0),
+			(rd32 (Hw, QRX_CTRL (0)) | QRX_CTRL_QENA_REQ_M)));
+  
   wr32 (Hw, QRX_CTRL (0), (rd32 (Hw, QRX_CTRL (0)) | QRX_CTRL_QENA_REQ_M));
 
   // Wait for the Rx queue status
@@ -1140,7 +1157,7 @@ IceConfigureRxQueues (
   // Clear the context structure first
   ZeroMem (&RxContext, sizeof (struct ice_rlan_ctx));
 
-  RxRing->RxBufLen = ICE_RXBUFFER_2048;
+  RxRing->RxBufLen = 1536; //ICE_RXBUFFER_2048;
 
   // No packet split
   RxRing->RxHdrLen = 0;
@@ -1150,6 +1167,12 @@ IceConfigureRxQueues (
 
   RxContext.dbuf = (UINT8) (RxRing->RxBufLen >> ICE_RLAN_CTX_DBUF_S);
   RxContext.hbuf = (UINT8) (RxRing->RxHdrLen >> ICE_RLAN_CTX_HBUF_S);
+
+  //
+  DEBUGPRINT(CRITICAL, ("*** RXQ @ %08lx\n",
+			(unsigned long)RxRing->Mapping.PhysicalAddress));
+
+
 
   RxContext.base = (UINT64) RxRing->Mapping.PhysicalAddress / 128;
   RxContext.qlen = RxRing->Count;
@@ -1165,7 +1188,7 @@ IceConfigureRxQueues (
   // vlan stripped
   RxContext.showiv = 0;
 
-  RxContext.l2tsel = 1;
+  //RxContext.l2tsel = 1;
 
   // Max packet size
   RxContext.rxmax = 0x600;
@@ -1201,6 +1224,8 @@ IceConfigureRxQueues (
   }
 
   // Initialize tail register
+  //
+  DEBUGPRINT(CRITICAL, ("*** RXQ tail at %x\n", QRX_TAIL(0)));
   IceWrite32 (AdapterInfo, QRX_TAIL (0), 0);
   IceWrite32 (AdapterInfo, QRX_TAIL (0), RxRing->Count - 1);
   AdapterInfo->Vsi.RxRing.NextToUse = 0;
@@ -1565,7 +1590,7 @@ IceSetupPFSwitch (
   //DEBUGPRINT(CRITICAL, ("*** have VSI node %p\n", vsi_node));
 
   //DEBUGPRINT(CRITICAL, ("***\n"));
-  if ( 0 ) {
+  if ( 0 && 1 ) {
   IceStatus = ice_aq_update_vsi (Hw, &AdapterInfo->Vsi.VsiCtx, NULL);
   if (IceStatus != ICE_SUCCESS) {
     DEBUGPRINT (
@@ -1575,7 +1600,7 @@ IceSetupPFSwitch (
     return EFI_DEVICE_ERROR;
   }
   }
-  if ( 0 ) {
+  if ( 0 && 1 ) {
   DEBUGPRINT(CRITICAL, ("*** ice_cfg_vsi_lan() start\n"));
   IceStatus = ice_cfg_vsi_lan (
                 Hw->port_info,
@@ -1598,7 +1623,7 @@ IceSetupPFSwitch (
   // Set FW VSI as default VSI for active PXE port
 
   // Add TX rule to set FW VSI as default
-  if ( 0 ) {
+  if ( 0 && 1 ) {
   IceStatus = ice_cfg_dflt_vsi (
                 PortInfo,
                 AdapterInfo->Vsi.Id,
@@ -1612,7 +1637,7 @@ IceSetupPFSwitch (
   DEBUGPRINT(CRITICAL, ("***\n"));
   }
   // Add RX rule to set FW VSI as default
-  if ( 0 ) {
+  if ( 0 && 1 ) {
   IceStatus = ice_cfg_dflt_vsi (
                 PortInfo,
                 AdapterInfo->Vsi.Id,
@@ -1625,7 +1650,7 @@ IceSetupPFSwitch (
   }
     DEBUGPRINT(CRITICAL, ("***\n"));
   }
-  if ( 0 ) {
+  if ( 0 && 1 ) {
 #ifdef BMSM_MODE
   IceStatus = ice_set_vsi_promisc_on_port (
                 Hw,
@@ -1665,7 +1690,7 @@ IceSetupPFSwitch (
   }
   AdapterInfo->CurrentPromiscuousMask = ICE_PROMISC_UCAST_RX | ICE_PROMISC_BCAST_RX;
 
-  if ( 0 ) {
+  if ( 0 && 1 ) {
 #if !defined (SIMICS_SUPPORT)
 #ifdef BMSM_MODE
   IceStatus = ice_aq_set_port_params (PortInfo, AdapterInfo->Vsi.Id, TRUE, TRUE, FALSE, NULL, NULL);

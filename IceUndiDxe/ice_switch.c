@@ -27,6 +27,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ***************************************************************************/
 
+#include "Ice.h"
+
 #include "ice_switch.h"
 #ifndef NO_FLEXP_SUPPORT
 #include "ice_flex_type.h"
@@ -3495,7 +3497,8 @@ ice_aq_sw_rules(struct ice_hw *hw, void *rule_list, u16 rule_list_sz,
 	enum ice_status status;
 
 	//
-	return 0;
+	//
+	//return 0;
 
 	ice_debug(hw, ICE_DBG_TRACE, "%s\n", __func__);
 
@@ -4515,6 +4518,7 @@ ice_add_marker_act(struct ice_hw *hw, struct ice_fltr_mgmt_list_entry *m_ent,
 	rx_tx->pdata.lkup_tx_rx.index =
 		CPU_TO_LE16(m_ent->fltr_info.fltr_rule_id);
 
+	DEBUGPRINT(CRITICAL, ("*****\n"));
 	status = ice_aq_sw_rules(hw, lg_act, rules_size, 2,
 				 ice_aqc_opc_update_sw_rules, NULL);
 	if (!status) {
@@ -4604,6 +4608,7 @@ ice_add_counter_act(struct ice_hw *hw, struct ice_fltr_mgmt_list_entry *m_ent,
 	f_rule_id = m_ent->fltr_info.fltr_rule_id;
 	rx_tx->pdata.lkup_tx_rx.index = CPU_TO_LE16(f_rule_id);
 
+	DEBUGPRINT(CRITICAL, ("*****\n"));
 	status = ice_aq_sw_rules(hw, lg_act, rules_size, 2,
 				 ice_aqc_opc_update_sw_rules, NULL);
 	if (!status) {
@@ -4707,6 +4712,7 @@ ice_update_vsi_list_rule(struct ice_hw *hw, u16 *vsi_handle_arr, u16 num_vsi,
 	s_rule->pdata.vsi_list.number_vsi = CPU_TO_LE16(num_vsi);
 	s_rule->pdata.vsi_list.index = CPU_TO_LE16(vsi_list_id);
 
+	DEBUGPRINT(CRITICAL, ("*****\n"));
 	status = ice_aq_sw_rules(hw, s_rule, s_rule_size, 1, opc, NULL);
 
 exit:
@@ -4779,6 +4785,7 @@ ice_create_pkt_fwd_rule(struct ice_hw *hw, struct ice_sw_recipe *recp_list,
 	ice_fill_sw_rule(hw, &fm_entry->fltr_info, s_rule,
 			 ice_aqc_opc_add_sw_rules);
 
+	DEBUGPRINT(CRITICAL, ("*****\n"));
 	status = ice_aq_sw_rules(hw, s_rule, ICE_SW_RULE_RX_TX_ETH_HDR_SIZE, 1,
 				 ice_aqc_opc_add_sw_rules, NULL);
 	if (status) {
@@ -4825,6 +4832,7 @@ ice_update_pkt_fwd_rule(struct ice_hw *hw, struct ice_fltr_info *f_info)
 	s_rule->pdata.lkup_tx_rx.index = CPU_TO_LE16(f_info->fltr_rule_id);
 
 	/* Update switch rule with new rule set to forward VSI list */
+	DEBUGPRINT(CRITICAL, ("*****\n"));
 	status = ice_aq_sw_rules(hw, s_rule, ICE_SW_RULE_RX_TX_ETH_HDR_SIZE, 1,
 				 ice_aqc_opc_update_sw_rules, NULL);
 
@@ -5124,6 +5132,7 @@ ice_add_rule_internal(struct ice_hw *hw, struct ice_sw_recipe *recp_list,
 
 	m_entry = ice_find_rule_entry(&recp_list->filt_rules, new_fltr);
 	if (!m_entry) {
+		DEBUGPRINT(CRITICAL, ("*****\n"));
 		status = ice_create_pkt_fwd_rule(hw, recp_list, f_entry);
 		goto exit_add_rule_internal;
 	}
@@ -5317,6 +5326,7 @@ ice_remove_rule_internal(struct ice_hw *hw, struct ice_sw_recipe *recp_list,
 		ice_fill_sw_rule(hw, &list_elem->fltr_info, s_rule,
 				 ice_aqc_opc_remove_sw_rules);
 
+		DEBUGPRINT(CRITICAL, ("*****\n"));
 		status = ice_aq_sw_rules(hw, s_rule,
 					 ICE_SW_RULE_RX_TX_NO_HDR_SIZE, 1,
 					 ice_aqc_opc_remove_sw_rules, NULL);
@@ -5605,6 +5615,7 @@ ice_add_mac_rule(struct ice_hw *hw, struct LIST_HEAD_TYPE *m_list,
 			num_unicast++;
 		} else if (IS_MULTICAST_ETHER_ADDR(add) ||
 			   (IS_UNICAST_ETHER_ADDR(add) && hw->umac_shared)) {
+			DEBUGPRINT(CRITICAL, ("*****\n"));
 			m_list_itr->status =
 				ice_add_rule_internal(hw, recp_list, lport,
 						      m_list_itr);
@@ -5652,6 +5663,7 @@ ice_add_mac_rule(struct ice_hw *hw, struct LIST_HEAD_TYPE *m_list,
 
 		elem_sent = MIN_T(u8, total_elem_left,
 				  (ICE_AQ_MAX_BUF_LEN / s_rule_size));
+		DEBUGPRINT(CRITICAL, ("*****\n"));
 		status = ice_aq_sw_rules(hw, entry, elem_sent * s_rule_size,
 					 elem_sent, ice_aqc_opc_add_sw_rules,
 					 NULL);
@@ -5800,6 +5812,7 @@ ice_add_vlan_internal(struct ice_hw *hw, struct ice_sw_recipe *recp_list,
 			new_fltr->fwd_id.vsi_list_id = vsi_list_id;
 		}
 
+		DEBUGPRINT(CRITICAL, ("*****\n"));
 		status = ice_create_pkt_fwd_rule(hw, recp_list, f_entry);
 		if (!status) {
 			v_list_itr = ice_find_rule_entry(&recp_list->filt_rules,
@@ -5986,6 +5999,7 @@ ice_add_mac_vlan_rule(struct ice_hw *hw, struct LIST_HEAD_TYPE *mv_list,
 		if (l_type != ICE_SW_LKUP_MAC_VLAN)
 			return ICE_ERR_PARAM;
 		mv_list_itr->fltr_info.flag = ICE_FLTR_TX;
+		DEBUGPRINT(CRITICAL, ("*****\n"));
 		mv_list_itr->status =
 			ice_add_rule_internal(hw, recp_list, lport,
 					      mv_list_itr);
@@ -6065,6 +6079,7 @@ ice_add_eth_mac_rule(struct ice_hw *hw, struct LIST_HEAD_TYPE *em_list,
 		    l_type != ICE_SW_LKUP_ETHERTYPE)
 			return ICE_ERR_PARAM;
 
+		DEBUGPRINT(CRITICAL, ("*****\n"));
 		em_list_itr->status = ice_add_rule_internal(hw, recp_list,
 							    lport,
 							    em_list_itr);
@@ -6138,6 +6153,7 @@ ice_remove_eth_mac_rule(struct ice_hw *hw, struct LIST_HEAD_TYPE *em_list,
 			return ICE_ERR_PARAM;
 
 		recp_list = &sw->recp_list[l_type];
+		DEBUGPRINT(CRITICAL, ("*****\n"));
 		em_list_itr->status = ice_remove_rule_internal(hw, recp_list,
 							       em_list_itr);
 		if (em_list_itr->status)
@@ -6393,6 +6409,7 @@ ice_cfg_dflt_vsi(struct ice_port_info *pi, u16 vsi_handle, bool set,
 
 	ice_fill_sw_rule(hw, &f_info, s_rule, opcode);
 
+	DEBUGPRINT(CRITICAL, ("*****\n"));
 	status = ice_aq_sw_rules(hw, s_rule, s_rule_size, 1, opcode, NULL);
 	if (status || !(f_info.flag & ICE_FLTR_TX_RX))
 		goto out;
@@ -6503,6 +6520,7 @@ ice_remove_mac_rule(struct ice_hw *hw, struct LIST_HEAD_TYPE *m_list,
 			}
 			ice_release_lock(rule_lock);
 		}
+		DEBUGPRINT(CRITICAL, ("*****\n"));
 		list_itr->status = ice_remove_rule_internal(hw, recp_list,
 							    list_itr);
 		if (list_itr->status)
@@ -6567,6 +6585,7 @@ ice_remove_vlan_rule(struct ice_hw *hw, struct LIST_HEAD_TYPE *v_list,
 
 		if (l_type != ICE_SW_LKUP_VLAN)
 			return ICE_ERR_PARAM;
+		DEBUGPRINT(CRITICAL, ("*****\n"));
 		v_list_itr->status = ice_remove_rule_internal(hw, recp_list,
 							      v_list_itr);
 		if (v_list_itr->status)
@@ -6637,6 +6656,7 @@ ice_remove_mac_vlan_rule(struct ice_hw *hw, struct LIST_HEAD_TYPE *v_list,
 
 		if (l_type != ICE_SW_LKUP_MAC_VLAN)
 			return ICE_ERR_PARAM;
+		DEBUGPRINT(CRITICAL, ("*****\n"));
 		v_list_itr->status =
 			ice_remove_rule_internal(hw, recp_list,
 						 v_list_itr);
@@ -6958,9 +6978,12 @@ ice_remove_promisc(struct ice_hw *hw, u8 recp_id,
 	struct ice_fltr_list_entry *v_list_itr, *tmp;
 	struct ice_sw_recipe *recp_list;
 
+	DEBUGPRINT(CRITICAL, ("*****\n"));
+
 	recp_list = &hw->switch_info->recp_list[recp_id];
 	LIST_FOR_EACH_ENTRY_SAFE(v_list_itr, tmp, v_list, ice_fltr_list_entry,
 				 list_entry) {
+		DEBUGPRINT(CRITICAL, ("*****\n"));
 		v_list_itr->status =
 			ice_remove_rule_internal(hw, recp_list, v_list_itr);
 		if (v_list_itr->status)
@@ -7032,6 +7055,7 @@ _ice_clear_vsi_promisc(struct ice_hw *hw, u16 vsi_handle, u8 promisc_mask,
 	}
 	ice_release_lock(rule_lock);
 
+	DEBUGPRINT(CRITICAL, ("*****\n"));
 	status = ice_remove_promisc(hw, recipe_id, &remove_list_head);
 
 free_fltr_list:
@@ -7062,6 +7086,7 @@ ice_clear_vsi_promisc_on_port(struct ice_hw *hw, u16 vsi_handle,
 	if (!hw || port_idx < 0)
 		return ICE_ERR_PARAM;
 
+	DEBUGPRINT(CRITICAL, ("*****\n"));
 	return _ice_clear_vsi_promisc(hw, vsi_handle, promisc_mask,
 				      vid, &hw->switch_info[port_idx]);
 }
@@ -7077,6 +7102,7 @@ enum ice_status
 ice_clear_vsi_promisc(struct ice_hw *hw, u16 vsi_handle,
 		      u8 promisc_mask, u16 vid)
 {
+	DEBUGPRINT(CRITICAL, ("*****\n"));
 	return _ice_clear_vsi_promisc(hw, vsi_handle, promisc_mask,
 				      vid, hw->switch_info);
 }
@@ -7106,6 +7132,9 @@ _ice_set_vsi_promisc(struct ice_hw *hw, u16 vsi_handle, u8 promisc_mask,
 
 	ice_debug(hw, ICE_DBG_TRACE, "%s\n", __func__);
 
+	DEBUGPRINT(CRITICAL, ("***** %04x %02x %04x %02x\n",
+			      vsi_handle, promisc_mask, vid, lport));
+
 	if (!ice_is_vsi_valid(hw, vsi_handle))
 		return ICE_ERR_PARAM;
 	hw_vsi_id = ice_get_hw_vsi_num(hw, vsi_handle);
@@ -7129,6 +7158,8 @@ _ice_set_vsi_promisc(struct ice_hw *hw, u16 vsi_handle, u8 promisc_mask,
 	while (promisc_mask) {
 		struct ice_sw_recipe *recp_list;
 		u8 *mac_addr;
+
+		DEBUGPRINT(CRITICAL, ("***** %x\n", promisc_mask));
 
 		pkt_type = 0;
 		is_tx_fltr = false;
@@ -7193,6 +7224,7 @@ _ice_set_vsi_promisc(struct ice_hw *hw, u16 vsi_handle, u8 promisc_mask,
 		f_list_entry.fltr_info = new_fltr;
 		recp_list = &sw->recp_list[recipe_id];
 
+		DEBUGPRINT(CRITICAL, ("*****\n"));
 		status = ice_add_rule_internal(hw, recp_list, lport,
 					       &f_list_entry);
 		if (status != ICE_SUCCESS)
@@ -7221,6 +7253,7 @@ ice_set_vsi_promisc_on_port(struct ice_hw *hw, u16 vsi_handle, u8 promisc_mask,
 	if (!hw || port_idx < 0)
 		return ICE_ERR_PARAM;
 
+	DEBUGPRINT(CRITICAL, ("*****\n"));
 	return _ice_set_vsi_promisc(hw, vsi_handle, promisc_mask, vid, lport,
 				    &hw->switch_info[port_idx]);
 }
@@ -7236,6 +7269,7 @@ enum ice_status
 ice_set_vsi_promisc(struct ice_hw *hw, u16 vsi_handle, u8 promisc_mask,
 		    u16 vid)
 {
+	DEBUGPRINT(CRITICAL, ("*****\n"));
 	return _ice_set_vsi_promisc(hw, vsi_handle, promisc_mask, vid,
 				    hw->port_info->lport,
 				    hw->switch_info);
@@ -7278,14 +7312,19 @@ _ice_set_vlan_vsi_promisc(struct ice_hw *hw, u16 vsi_handle, u8 promisc_mask,
 	LIST_FOR_EACH_ENTRY(list_itr, &vsi_list_head, ice_fltr_list_entry,
 			    list_entry) {
 		vlan_id = list_itr->fltr_info.l_data.vlan.vlan_id;
-		if (rm_vlan_promisc)
+		if (rm_vlan_promisc) {
+			DEBUGPRINT(CRITICAL, ("*****\n"));
+			
 			status =  _ice_clear_vsi_promisc(hw, vsi_handle,
 							 promisc_mask,
 							 vlan_id, sw);
-		else
+		} 		else {
+			DEBUGPRINT(CRITICAL, ("*****\n"));
+			
 			status =  _ice_set_vsi_promisc(hw, vsi_handle,
 						       promisc_mask, vlan_id,
 						       lport, sw);
+		}
 		if (status)
 			break;
 	}
@@ -7382,6 +7421,7 @@ ice_remove_vsi_lkup_fltr(struct ice_hw *hw, u16 vsi_handle,
 		break;
 	case ICE_SW_LKUP_PROMISC:
 	case ICE_SW_LKUP_PROMISC_VLAN:
+		DEBUGPRINT(CRITICAL, ("*****\n"));
 		ice_remove_promisc(hw, lkup, &remove_list_head);
 		break;
 	case ICE_SW_LKUP_MAC_VLAN:
@@ -10329,6 +10369,7 @@ ice_add_adv_rule(struct ice_hw *hw, struct ice_adv_lkup_elem *lkups,
 			goto err_ice_add_adv_rule;
 	}
 
+	DEBUGPRINT(CRITICAL, ("*****\n"));
 	status = ice_aq_sw_rules(hw, (struct ice_aqc_sw_rules *)s_rule,
 				 rule_buf_sz, 1, ice_aqc_opc_add_sw_rules,
 				 NULL);
@@ -10563,6 +10604,7 @@ ice_rem_adv_rule(struct ice_hw *hw, struct ice_adv_lkup_elem *lkups,
 		s_rule->pdata.lkup_tx_rx.index =
 			CPU_TO_LE16(list_elem->rule_info.fltr_rule_id);
 		s_rule->pdata.lkup_tx_rx.hdr_len = 0;
+		DEBUGPRINT(CRITICAL, ("*****\n"));
 		status = ice_aq_sw_rules(hw, (struct ice_aqc_sw_rules *)s_rule,
 					 rule_buf_sz, 1,
 					 ice_aqc_opc_remove_sw_rules, NULL);
@@ -10710,6 +10752,7 @@ ice_replay_fltr(struct ice_hw *hw, u8 recp_id, struct LIST_HEAD_TYPE *list_head)
 
 		f_entry.fltr_info = itr->fltr_info;
 		if (itr->vsi_count < 2 && recp_id != ICE_SW_LKUP_VLAN) {
+			DEBUGPRINT(CRITICAL, ("*****\n"));
 			status = ice_add_rule_internal(hw, recp_list, lport,
 						       &f_entry);
 			if (status != ICE_SUCCESS)
@@ -10728,6 +10771,7 @@ ice_replay_fltr(struct ice_hw *hw, u8 recp_id, struct LIST_HEAD_TYPE *list_head)
 			f_entry.fltr_info.fwd_id.hw_vsi_id =
 				ice_get_hw_vsi_num(hw, vsi_handle);
 			f_entry.fltr_info.fltr_act = ICE_FWD_TO_VSI;
+			DEBUGPRINT(CRITICAL, ("*****\n"));
 			if (recp_id == ICE_SW_LKUP_VLAN)
 				status = ice_add_vlan_internal(hw, recp_list,
 							       &f_entry);
@@ -10806,6 +10850,7 @@ ice_replay_vsi_fltr(struct ice_hw *hw, struct ice_port_info *pi,
 			/* update the src in case it is VSI num */
 			if (f_entry.fltr_info.src_id == ICE_SRC_ID_VSI)
 				f_entry.fltr_info.src = hw_vsi_id;
+			DEBUGPRINT(CRITICAL, ("*****\n"));
 			status = ice_add_rule_internal(hw, recp_list,
 						       pi->lport,
 						       &f_entry);
@@ -10823,6 +10868,7 @@ ice_replay_vsi_fltr(struct ice_hw *hw, struct ice_port_info *pi,
 		/* update the src in case it is VSI num */
 		if (f_entry.fltr_info.src_id == ICE_SRC_ID_VSI)
 			f_entry.fltr_info.src = hw_vsi_id;
+		DEBUGPRINT(CRITICAL, ("*****\n"));
 		if (recp_id == ICE_SW_LKUP_VLAN)
 			status = ice_add_vlan_internal(hw, recp_list, &f_entry);
 		else

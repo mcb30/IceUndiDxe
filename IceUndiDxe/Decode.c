@@ -1193,7 +1193,9 @@ UndiRecFilter (
       }
     }
     NewFilter |= PXE_OPFLAGS_RECEIVE_FILTER_UNICAST;
-    IceSetFilter (AdapterInfo, NewFilter);
+    DEBUGPRINT(CRITICAL, ("*****\n"));
+    if ( 1 )
+	    IceSetFilter (AdapterInfo, NewFilter);
 
     ZeroMem (AdapterInfo->Vsi.McastListToProgram.McAddr, MAX_MCAST_ADDRESS_CNT * PXE_MAC_LENGTH);
     CopyMem (
@@ -1213,7 +1215,9 @@ UndiRecFilter (
     if (CdbPtr->CPBsize != PXE_CPBSIZE_NOT_USED) {
       goto BadCdb;    // db with all_multi??
     }
-    IceClearFilter (AdapterInfo, NewFilter);
+    DEBUGPRINT(CRITICAL, ("*****\n"));
+    if ( 1 )
+	    IceClearFilter (AdapterInfo, NewFilter);
     break;
 
   default:
